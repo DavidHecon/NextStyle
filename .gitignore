@@ -1,0 +1,21 @@
+# Ignorar node_modules en ambas carpetas
+backend/node_modules/
+frontend/node_modules/
+
+# Ignorar archivos de configuración de entorno
+backend/env
+
+# Ignorar configuración de VS Code
+frontend/.vscode/
+
+# Archivos de construcción y generación
+frontend/dist/
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
