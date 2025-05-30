@@ -155,10 +155,10 @@ app.get('/api/clientes', (req, res) => {
 });
 
 app.post('/api/clientes', (req, res) => {
-  const { nombre_cliente, correo, telefono_cliente, frecuente } = req.body;
+  const { nombre_cliente, correo, telefono_cliente, notas } = req.body;
   db.query(
-    'INSERT INTO clientes (nombre_cliente, correo, telefono_cliente, frecuente) VALUES (?, ?, ?, ?)',
-    [nombre_cliente, correo, telefono_cliente, frecuente],
+    'INSERT INTO clientes (nombre_cliente, correo, telefono_cliente, notas) VALUES (?, ?, ?, ?)',
+    [nombre_cliente, correo, telefono_cliente, notas],
     (err, result) => {
       if (err) {
         console.error('Error creating client:', err);

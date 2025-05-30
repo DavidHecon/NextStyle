@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react'; 
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { ClienteForm } from './ClienteForm';
@@ -14,8 +14,23 @@ export const ClientesTab = ({ data, onUpdate }) => {
     nombre_cliente: '',
     correo: '',
     telefono_cliente: '',
-    frecuente: false,
+    notas: '',
   });
+
+  const notasOptions = ['Cliente nuevo', 'Cliente frecuente'];
+  const [notasInput, setNotasInput] = useState('');
+  const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
+  const sugerenciasRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (sugerenciasRef.current && !sugerenciasRef.current.contains(event.target)) {
+        setMostrarSugerencias(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleEditClick = (cliente) => {
     setEditingCliente(cliente);
@@ -23,13 +38,14 @@ export const ClientesTab = ({ data, onUpdate }) => {
       nombre_cliente: cliente.nombre_cliente,
       correo: cliente.correo,
       telefono_cliente: cliente.telefono_cliente,
-      frecuente: cliente.frecuente,
+      notas: cliente.notas || '',
     });
+    setNotasInput(cliente.notas || '');
   };
 
   const handleEditSave = async () => {
     try {
-      await updateCliente(editingCliente.id_cliente, editFormData);
+      await updateCliente(editingCliente.id_cliente, { ...editFormData, notas: notasInput });
       onUpdate();
       setEditingCliente(null);
     } catch (error) {
@@ -48,6 +64,18 @@ export const ClientesTab = ({ data, onUpdate }) => {
     }
   };
 
+  const handleNotasChange = (e) => {
+    setNotasInput(e.target.value);
+    setEditFormData({ ...editFormData, notas: e.target.value });
+    setMostrarSugerencias(true);
+  };
+
+  const handleNotasClick = (option) => {
+    setNotasInput(option);
+    setEditFormData({ ...editFormData, notas: option });
+    setMostrarSugerencias(false);
+  };
+
   return (
     <Card>
       <CardContent className="p-6">
@@ -61,7 +89,7 @@ export const ClientesTab = ({ data, onUpdate }) => {
                 <TableHead>Nombre</TableHead>
                 <TableHead>Correo</TableHead>
                 <TableHead>Teléfono</TableHead>
-                <TableHead>Frecuente</TableHead>
+                <TableHead>Notas</TableHead>
                 <TableHead>Acciones</TableHead>
               </TableRow>
             </TableHeader>
@@ -72,7 +100,7 @@ export const ClientesTab = ({ data, onUpdate }) => {
                   <TableCell>{cliente.nombre_cliente}</TableCell>
                   <TableCell>{cliente.correo}</TableCell>
                   <TableCell>{cliente.telefono_cliente}</TableCell>
-                  <TableCell>{cliente.frecuente ? 'Sí' : 'No'}</TableCell>
+                  <TableCell>{cliente.notas}</TableCell>
                   <TableCell className="space-x-2">
                     <Button 
                       variant="outline" 
@@ -96,14 +124,13 @@ export const ClientesTab = ({ data, onUpdate }) => {
         </div>
       </CardContent>
 
-      {/* Modal para editar cliente */}
       {editingCliente && (
         <Dialog open={!!editingCliente} onOpenChange={() => setEditingCliente(null)}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Editar Cliente</DialogTitle>
             </DialogHeader>
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); handleEditSave(); }}>
               <div>
                 <Label>Nombre</Label>
                 <Input
@@ -130,23 +157,42 @@ export const ClientesTab = ({ data, onUpdate }) => {
                   required
                 />
               </div>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="frecuente"
-                  checked={editFormData.frecuente}
-                  onChange={(e) => setEditFormData({ ...editFormData, frecuente: e.target.checked })}
-                  className="h-4 w-4"
+
+              <div className="relative" ref={sugerenciasRef}>
+                <Label>Notas</Label>
+                <Input
+                  type="text"
+                  value={notasInput}
+                  onChange={handleNotasChange}
+                  onFocus={() => setMostrarSugerencias(true)}
+                  autoComplete="off"
+                  placeholder="Escribe o selecciona"
+                  required
                 />
-                <Label htmlFor="frecuente">Cliente frecuente</Label>
+                {mostrarSugerencias && (
+                  <ul className="absolute z-10 bg-white border border-gray-300 rounded-md w-full max-h-48 overflow-auto">
+                    {notasOptions
+                      .filter(option => option.toLowerCase().includes(notasInput.toLowerCase()))
+                      .map((option, i) => (
+                      <li
+                        key={i}
+                        onClick={() => handleNotasClick(option)}
+                        className="cursor-pointer px-2 py-1 hover:bg-blue-100"
+                      >
+                        {option}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
+              
+              <DialogFooter>
+                <Button type="submit">Guardar</Button>
+                <Button variant="cancel" onClick={() => setEditingCliente(null)}>
+                  Cancelar
+                </Button>
+              </DialogFooter>
             </form>
-            <DialogFooter>
-              <Button onClick={handleEditSave}>Guardar</Button>
-              <Button variant="cancel" onClick={() => setEditingCliente(null)}>
-                Cancelar
-              </Button>
-            </DialogFooter>
           </DialogContent>
         </Dialog>
       )}

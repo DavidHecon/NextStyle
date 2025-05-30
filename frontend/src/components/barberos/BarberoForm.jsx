@@ -85,7 +85,7 @@ export const BarberoForm = ({ onSuccess, initialData = null, onCancel }) => {
             <option value="">Selecciona un turno</option>
             <option value="mañana">Mañana</option>
             <option value="tarde">Tarde</option>
-            <option value="noche">Noche</option>
+            <option value="mañana">Noche</option>
           </select>
         </div>
         <div className="flex items-center space-x-2">
@@ -100,9 +100,7 @@ export const BarberoForm = ({ onSuccess, initialData = null, onCancel }) => {
         </div>
       </div>
       <div className="flex space-x-2">
-        <Button type="submit" variant="default">
-          {initialData ? 'Actualizar' : 'Crear'} Barbero
-        </Button>
+        <Button type="submit">{initialData ? 'Actualizar' : 'Crear'} Barbero</Button>
         {onCancel && (
           <Button type="button" variant="cancel" onClick={onCancel}>
             Cancelar

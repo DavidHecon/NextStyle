@@ -133,7 +133,6 @@ export const CitaForm = ({ barberos, clientes, onSuccess, initialData = null, cr
   const handleServicioChange = (e) => {
     setServicioInput(e.target.value);
     setFormData({ ...formData, servicio: e.target.value });
-    // No filtramos ni ocultamos la lista mientras escribes
   };
 
   const handleServicioClick = (servicio) => {
@@ -218,7 +217,7 @@ export const CitaForm = ({ barberos, clientes, onSuccess, initialData = null, cr
           />
         </div>
 
-        {/* Servicio modificado */}
+        {/* Servicio con sugerencias */}
         <div className="relative" ref={sugerenciasServicioRef}>
           <Label>Servicio</Label>
           <Input
